@@ -118,7 +118,7 @@ main {
 .product_item {
     border: 1px solid black;
     min-height: 250px;
-    width: 150px;
+    width: 152px;
     margin-top: 20px;
     text-align: center;
     padding-bottom: 20px;
@@ -127,7 +127,6 @@ main {
 
 .product_img {
     display: block;
-    height: 130px;
     background-color: #fff;
 }
 
