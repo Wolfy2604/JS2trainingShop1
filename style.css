@@ -103,6 +103,7 @@ main {
     background-color: lightgray;
     width: 920px;
     margin: 0 auto 50px;
+    position: relative;
 }
 
 .products {
@@ -144,4 +145,18 @@ footer {
     height: 50px;
     background-color: black;
     margin-top: -50px;
+}
+
+/*
+Корзина*/
+
+.cart {
+    width: 250px;
+    min-height: 400px;
+    display: none;
+    position: absolute;
+    right: 0;
+    top:157px;
+    background-color: white;
+    border: 1px solid #530000;
 }

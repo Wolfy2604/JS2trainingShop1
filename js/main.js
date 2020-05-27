@@ -35,16 +35,15 @@ class ProductsList {
     //Счетчик итоговый цены всех товаров в каталоге
     totalFunction () {
 
-        for (let product in this.productsList) {
-            let productObj = this.productsList[product];
-            if (productObj.price != undefined) {
-                this.total += productObj.price;
-            } else {
-                this.total += 0;
+        let total = this.productsList.forEach((item,) => {
+            if (item.price != undefined) {
+                this.total += item.price;
             }
-        }
-        return this.total;
+            return this.total;
+        })
+        console.log(`Всего товаров на ${this.total} рублей`);
     }
+
 }
 
 class ProductItem {
@@ -57,7 +56,7 @@ class ProductItem {
                                 <img class="product_img" src="${this.img}" alt="Изображение товара">
                                 <h3 class="product_title">${this.title}</h3>
                                 <p class="product_price">Цена: ${this.price}</p>
-                                <button class="buy_btn">Купить</button>
+                                <button class="buy_btn" onclick="cart.putToCart(${this.id})">Купить</button>
                               </div>`
     }
 
@@ -108,40 +107,67 @@ class ProductItem4 extends ProductItem {
 
 let list = new ProductsList();
 
-// Корзина. Идентифицирую просто по порядку, хотя лучше по ID
+// Корзина
 
-class Cart {
-    constructor(product, quantity) {
-        this.product = list.productsList[product];
-        this.productsNames = [];
-        this.productsQuantity = [];
+class Cart extends ProductsList{
+    constructor(product) {
+        super(product);
+        this.productsInCart = {};
+    }
 
+    //Следующая функция либо кладет в корзину новый объект, либо увеличивает количество товара.
+
+    putToCart (id) {
+        if (this.productsInCart[id] == undefined || this.productsInCart[id].id != id) {
+            this.productsInCart[id] = this.productsList[id - 1];
+            this.productsInCart[id].quantity = 1;
+        } else {
+            this.productsInCart[id].quantity++;
+        }
+        console.log(this.productsInCart);
     }
-    putToCart () {
-        this.productsNames.push(this.product.name);
-        this.productsQuantity.push(this.product.price);
+
+    deleteFromCart(id) {
+        delete this.productsInCart[id];
     }
+
+    showCart () {
+        let g = document.querySelector('.cart');
+        /*let computedStyle = getComputedStyle(g);*/
+        /*if(computedStyle.display = 'none') {*/
+            g.style.display = 'block';
+        /*} else {
+            g.style.display = 'none';
+        }*/
+    }
+
     render() {};
 }
 
-class CartItem {
+let cart = new Cart();
+
+//
+
+/*class CartItem {
     constructor(product) {
         this.product = list.productsList[product]
         this.id = this.product.id;
         this.img = this.product.img;
         this.title = this.product.title;
         this.price= this.product.price;
-        this.textForRender = `<div class="cart_item">
-                                <img class="cart_item_img" src="${this.img}" alt="Изображение товара">
-                                <h3 class="cart_item_title">${this.title}</h3>
-                                <p class="cart_item_price">Цена: ${this.price}</p>
-                                <button class="buy_btn">Купить</button>
-                              </div>`
     }
     render() {
         return this.textForRender;
     }
-}
+}*/
+
+/*function showCart () {
+    alert(`???`);
+    let g = document.querySelector('.cart');
+    g.style.display = 'block';
+}*/
+
+
 
 ////////////////////
 
