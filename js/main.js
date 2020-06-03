@@ -1,25 +1,61 @@
 'use strict';
 
-//Каталог товаров
+let app = new Vue ({
+    el: '#container',
+    data: {
+        userSearchText: '',
+        filtered: [],
+    },
+    methods: {
+         filterIt: function () {
+             const regExp = new RegExp(`[${this.userSearchText}]{1,10}`,'i');
+             list.showProducts = [];
+             //Фильтр не работает
+             /*this.filtered = list.productsList.filter((product) => {
+                 regExp.test(product['product_name']);
+                 console.log(regExp.test(product['product_name']));
+             });*/
+             list.productsList.forEach((value => {
+                 if (value['product_name'].search(regExp) != -1) {
+                     list.showProducts.push(value);
+                 }
+             }));
+             list.renderFiltered();
+         }
+    }
+})
+
+const APIProductsList = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/catalogData.json';
+const APICart = '/getBasket';
 
 class ProductsList {
-    constructor (product, container = '.products') {
+    constructor(product, container = '.products') {
         this.container = container;
-        this.productsList = [
-            {id: 1, title: 'Notebook', price: 2000},
-            {id: 2, title: 'Mouse', price: 20},
-            {id: 3, title: 'Keyboard', price: 200},
-            {id: 4, title: 'Gamepad', price: 50},
-            {},
-        ];
+        this.productsList = [];
         this.showProducts = [];
         this.iteration = 0;
         this.total = 0;
-        this.render();
-        this.totalFunction();
+        this.getProductsList();
+        this.divContainer = document.querySelector(this.container);
+        this.textForRenderNothing = `<div class="disclaimer">
+                                <span>Соответствующих товаров нет</span>
+                              </div>`
     }
+
+    getProductsList() {
+        fetch(APIProductsList)
+            .then((response) => {
+                return response.json()
+            })
+            .then(result => {
+                this.productsList = result;
+            })
+            .then(() => this.render())
+            .then(() => this.totalFunction())
+    }
+
     render() {
-        const divContainer = document.querySelector(this.container);
+
         for (let product in this.productsList) {
             let productObj;
             if (++this.iteration % 4 == 0) {
@@ -28,12 +64,44 @@ class ProductsList {
                 productObj = new ProductItem(this.productsList[product]);
             }
             this.showProducts.push(productObj);
-            divContainer.insertAdjacentHTML('beforeend',productObj.render());
+            this.divContainer.insertAdjacentHTML('beforeend', productObj.render());
+        }
+        this.iteration = 0;
+        this.addInvisibleDiv();
+    }
+
+    renderFiltered() {
+        while (this.divContainer.firstElementChild) {
+            this.divContainer.firstElementChild.remove();
+        }
+        console.log(this.showProducts.booleanValue);
+        if (this.showProducts.length == 0) {
+            console.log('AAA');
+            this.divContainer.insertAdjacentHTML('afterbegin', this.renderNothingText());
+        } else {
+            for (let product in this.showProducts) {
+                let productObj;
+                if (++this.iteration % 4 == 0) {
+                    productObj = new ProductItem4(this.showProducts[product]);
+                } else {
+                    productObj = new ProductItem(this.showProducts[product]);
+                }
+                this.divContainer.insertAdjacentHTML('beforeend', productObj.render());
+            }
+            this.iteration = 0;
+            this.addInvisibleDiv();
+        }
+    }
+
+    addInvisibleDiv() {
+        const InvisibleDivText = `<div class="invisibleDiv"></div>`;
+        for (let i = this.productsList.length; i % 4 != 0; i++) {
+            document.querySelector('.products').insertAdjacentHTML('beforeend', InvisibleDivText);
         }
     }
 
     //Счетчик итоговый цены всех товаров в каталоге
-    totalFunction () {
+    totalFunction() {
 
         let total = this.productsList.forEach((item,) => {
             if (item.price != undefined) {
@@ -43,15 +111,18 @@ class ProductsList {
         })
         console.log(`Всего товаров на ${this.total} рублей`);
     }
+    renderNothingText() {
+        return this.textForRenderNothing;
+    }
 
 }
 
 class ProductItem {
-    constructor (product, img = 'https://placehold.it/150x100') {
-        this.id = product.id;
+    constructor(product, img = 'https://placehold.it/150x100') {
+        this.id = product['id_product'];
         this.img = img;
-        this.title = product.title;
-        this.price= product.price;
+        this.title = product['product_name'];
+        this.price = product.price;
         this.textForRender = `<div class="product_item">
                                 <img class="product_img" src="${this.img}" alt="Изображение товара">
                                 <h3 class="product_title">${this.title}</h3>
@@ -74,6 +145,7 @@ class ProductItem {
             this._title = value;
         }
     }
+
     get price() {
         return this._price;
     }
@@ -87,108 +159,123 @@ class ProductItem {
         }
     }
 
-    render () {
+    render() {
         return this.textForRender;
     }
-
 }
 
 //Потомок ProductItem - частный случай рендеринга 4 блока в строке - перенос на новую стоку
 
 class ProductItem4 extends ProductItem {
-    constructor (id, img = 'https://placehold.it/150x100', title = 'Товар отсутствует', price = 0, textForRender) {
+    constructor(id, img = 'https://placehold.it/150x100', title = 'Товар отсутствует', price = 0, textForRender) {
         super(id, img, title, price, textForRender);
         this.render()
     }
+
     render() {
         return `${super.render()}<div class="break"></div>`
     }
 }
 
-let list = new ProductsList();
-
 // Корзина
 
-class Cart extends ProductsList{
+class Cart extends ProductsList {
     constructor(product) {
         super(product);
         this.productsInCart = {};
+        this.hideCart();
     }
 
     //Следующая функция либо кладет в корзину новый объект, либо увеличивает количество товара.
 
-    putToCart (id) {
-        if (this.productsInCart[id] == undefined || this.productsInCart[id].id != id) {
-            this.productsInCart[id] = this.productsList[id - 1];
-            this.productsInCart[id].quantity = 1;
+    putToCart(id) {
+        let alreadyInCart = false;
+        if (Object.keys(this.productsInCart).length != 0) {
+            for (let key in this.productsInCart) {
+                let cartObj = this.productsInCart[key];
+                if (cartObj['id_product'] == id) {
+                    alreadyInCart = true;
+                    cartObj.quantity++;
+                }
+            }
+            if (alreadyInCart == false) {
+                this.productsList.forEach((value) => {
+                    if (value['id_product'] == id) {
+                        this.productsInCart[id] = value;
+                        this.productsInCart[id].quantity = 1;
+                    }
+                })
+            }
         } else {
-            this.productsInCart[id].quantity++;
+            this.productsList.forEach((value) => {
+                if (value['id_product'] == id) {
+                    this.productsInCart[id] = value;
+                    this.productsInCart[id].quantity = 1;
+                }
+            })
         }
-        console.log(this.productsInCart);
+        this.render(this.productsInCart);
     }
 
-    deleteFromCart(id) {
-        delete this.productsInCart[id];
+    //Виртуальная очистка корзины
+    deleteFromCart() {
+        this.productsInCart = {};
     }
 
-    showCart () {
+    //Визуальная очистка корзины
+
+    cleanCartWindow() {
+        let forDelete = document.querySelector('.cart_list>table');
+        while (forDelete.firstElementChild) {
+            forDelete.firstElementChild.remove();
+        }
+    }
+
+    hideCart() {
         let g = document.querySelector('.cart');
-        /*let computedStyle = getComputedStyle(g);*/
-        /*if(computedStyle.display = 'none') {*/
-            g.style.display = 'block';
-        /*} else {
-            g.style.display = 'none';
-        }*/
+        g.style.display = 'none';
     }
 
-    render() {};
+    showCart() {
+        let g = document.querySelector('.cart');
+        if (g.style.display == 'none') {
+            g.style.display = 'block';
+        } else {
+            g.style.display = 'none';
+        }
+        this.render(this.productsInCart);
+    }
+
+    render() {
+        let counter = 0;
+        let cartList = document.querySelector('.cart_list>table');
+
+        this.cleanCartWindow();
+
+        if (document.querySelector('.cart').style.display == 'block') {
+            if (this.productsInCart != undefined || this.productsInCart != '') {
+                for (let key in this.productsInCart) {
+                    console.log(this.productsInCart[key]);
+                    let cartTextFull = '';
+                    let cartindex = this.productsInCart[key];
+                    let cartText = `<tr class="cart_temp">
+                                        <td class="cart_temp">${++counter}</td>
+                                        <td class="cart_temp">${cartindex['product_name']}</td>
+                                        <td class="cart_temp">${cartindex.price} руб.</td>
+                                        <td class="cart_temp">${cartindex.quantity} шт.</td>
+                                    </tr class="cart_temp">`;
+                    cartTextFull += cartText;
+                    cartList.insertAdjacentHTML('beforeend', cartTextFull);
+                }
+            } else {
+                return;
+            }
+        }
+    };
 }
 
+let list = new ProductsList();
 let cart = new Cart();
 
-//
-
-/*class CartItem {
-    constructor(product) {
-        this.product = list.productsList[product]
-        this.id = this.product.id;
-        this.img = this.product.img;
-        this.title = this.product.title;
-        this.price= this.product.price;
-    }
-    render() {
-        return this.textForRender;
-    }
-}*/
-
-/*function showCart () {
-    alert(`???`);
-    let g = document.querySelector('.cart');
-    g.style.display = 'block';
-}*/
-
-
-
-////////////////////
-
-/* Старый код, не реализованный через ООП
-
-const renderPage = list => {
-
-    const productsList = list.map(item => renderProduct(item.id, item.title, item.price));
-
-    //Добавляем невидимые блоки в products, чтобы выровнять последние строчки во флекс контейнере
-
-    let addInvisibleDiv = () => {
-        let InvisibleDivText = `<div class="invisibleDiv"></div>`;
-        for (let i = productsList.length; i % 4 != 0; i++) {
-            productsList.push(InvisibleDivText);
-        }
-    }
-    addInvisibleDiv();
-
-    for (let i = 0; i < productsList.length; i++) {
-        document.querySelector('.products').innerHTML += productsList[i];
-    }
-
-}*/
+let searchBtn = document.querySelector('.search_btn');
+searchBtn.addEventListener('click',search.filterIt);
