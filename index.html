@@ -19,24 +19,19 @@
                 <a href="#" class="menu_point"><span href="#">Пункт 5</span></a>
                 <div id="search">
                     <input type="text" class="search_box" placeholder="Поиск товара" v-model="userSearchText">
-                    <button class="search_btn" v-on:click="filterIt"></button>
+                    <button class="search_btn" @click="filterIt"></button>
                 </div>
-                <a href="#" class="menu_point btn-cart"><span onclick ="cart.showCart()">Корзина</span></a>
+                <button class="menu_point btn-cart" @click="showCart = !showCart">Корзина</button>
             </nav>
         </header>
         <main>
-            <section class="products"></section>
+            <products :img="imgProd" :products="filtered" @add-product="putToCart"></products>
+            <cart :cart-items="cartItems" @remove="remove" :visibility="showCart"></cart>
         </main>
-        <div class="cart">
-            <span class="cart_title">Корзина</span>
-            <div class="cart_list">
-                <table></table>
-            </div>
-            <button class="cart_button" onclick="cart.deleteFromCart()">Очистить</button>
-        </div>
     </div>
     <footer></footer>
     <script src="js/vue.min.js"></script>
+    <script src="js/components.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

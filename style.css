@@ -57,7 +57,6 @@ header {
     margin: 0;
     padding: 5px 2vh;
     background-color: transparent;
-    display: block;
     font-size: 20px;
     text-decoration: none;
 }
@@ -135,10 +134,9 @@ header {
     margin: 0 20px 0 20px;
     border: 1px solid black;
     color: black;
-}
-
-.btn-cart > span {
-    color: black;
+    height: 38px;
+    outline: none;
+    min-width: 98px;
 }
 
 #container {
@@ -209,17 +207,18 @@ footer {
 /*
 Корзина*/
 
-.cart {
+.cart-block {
     text-align: center;
     min-width: 250px;
     min-height: 200px;
     position: absolute;
     right: 0;
-    top:157px;
+    top:-1px;
     background-color: white;
     border: 1px solid #530000;
     padding: 7px;
     box-sizing: border-box;
+    margin: 0;
 }
 
 .cart_title {

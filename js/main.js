@@ -1,34 +1,87 @@
 'use strict';
 
-let app = new Vue ({
+const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
+const app = new Vue({
     el: '#container',
     data: {
         userSearchText: '',
+        productsList: [],
         filtered: [],
+        imgProd: 'https://placehold.it/150x100',
+        cartItems: [],
+        showCart: false,
+        iteration: 0,
+        total: 0,
+        divContainer: document.querySelector('.products'),
     },
     methods: {
-         filterIt: function () {
-             const regExp = new RegExp(`[${this.userSearchText}]{1,10}`,'i');
-             list.showProducts = [];
-             //Фильтр не работает
-             /*this.filtered = list.productsList.filter((product) => {
-                 regExp.test(product['product_name']);
-                 console.log(regExp.test(product['product_name']));
-             });*/
-             list.productsList.forEach((value => {
-                 if (value['product_name'].search(regExp) != -1) {
-                     list.showProducts.push(value);
-                 }
-             }));
-             list.renderFiltered();
-         }
+
+        filterIt () {
+            let regExp = new RegExp(`[${this.userSearchText}]{1,10}`, 'i');
+            this.filtered = this.filtered.filter(el => regExp.test(el.product_name));
+            console.log(regExp);
+            console.log(this.filtered.length);
+        },
+
+        getJson(API) {
+            return fetch(API)
+                .then((response) => {
+                    return response.json()
+                })
+                .catch(error => console.log(error));
+        },
+
+        putToCart(item) {
+            let find = this.cartItems.find(el => el.id_product === item.id_product);
+            if (find) {
+                find.quantity++;
+            } else {
+                item.quantity = 1;
+                this.cartItems.push(item);
+            }
+
+        },
+
+        remove(item) {
+            if (item.quantity > 1) {
+                item.quantity--;
+            } else {
+                this.cartItems.splice(this.cartItems.indexOf(item), 1);
+            }
+        },
+
+        totalFunction() {
+            let total = this.filtered.forEach((item) => {
+                if (item.price != undefined) {
+                    this.total += item.price;
+                }
+            })
+            console.log(`Всего товаров на ${this.total} рублей`);
+        },
+    },
+
+    mounted() {
+        this.getJson(`${API}/catalogData.json`)
+            .then((data) => {
+                for (let item of data) {
+                    this.$data.filtered.push(item);
+                }
+            })
+        this.getJson(`${API}/getBasket.json`)
+            .then((data) => {
+                for (let item of data.contents) {
+                    this.$data.cartItems.push(item);
+                }
+            })
+            .then(() => {
+                this.totalFunction();
+            })
     }
 })
 
-const APIProductsList = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/catalogData.json';
-const APICart = '/getBasket';
 
-class ProductsList {
+/*class ProductsList {
     constructor(product, container = '.products') {
         this.container = container;
         this.productsList = [];
@@ -42,21 +95,8 @@ class ProductsList {
                               </div>`
     }
 
-    getProductsList() {
-        fetch(APIProductsList)
-            .then((response) => {
-                return response.json()
-            })
-            .then(result => {
-                this.productsList = result;
-            })
-            .then(() => this.render())
-            .then(() => this.totalFunction())
-    }
-
     render() {
-
-        for (let product in this.productsList) {
+        for (let product in this.filtered) {
             let productObj;
             if (++this.iteration % 4 == 0) {
                 productObj = new ProductItem4(this.productsList[product]);
@@ -101,72 +141,72 @@ class ProductsList {
     }
 
     //Счетчик итоговый цены всех товаров в каталоге
-    totalFunction() {
 
-        let total = this.productsList.forEach((item,) => {
-            if (item.price != undefined) {
-                this.total += item.price;
-            }
-            return this.total;
-        })
-        console.log(`Всего товаров на ${this.total} рублей`);
-    }
     renderNothingText() {
         return this.textForRenderNothing;
     }
 
-}
+}*/
 
-class ProductItem {
+/*class ProductItem {
     constructor(product, img = 'https://placehold.it/150x100') {
         this.id = product['id_product'];
         this.img = img;
         this.title = product['product_name'];
-        this.price = product.price;
-        this.textForRender = `<div class="product_item">
-                                <img class="product_img" src="${this.img}" alt="Изображение товара">
-                                <h3 class="product_title">${this.title}</h3>
-                                <p class="product_price">Цена: ${this.price}</p>
-                                <button class="buy_btn" onclick="cart.putToCart(${this.id})">Купить</button>
-                              </div>`
-    }
+        this.price = product.price;*/
+/*this.textForRender = `<div class="product_item">
+                        <img class="product_img" src="${this.img}" alt="Изображение товара">
+                        <h3 class="product_title">${this.title}</h3>
+                        <p class="product_price">Цена: ${this.price}</p>
+                        <button class="buy_btn" onclick="cart.putToCart(${this.id})">Купить</button>
+                      </div>`
+}*/
 
-    //Далее идут сеттеры и геттеры для установки значений по умолчанию
+//Далее идут сеттеры и геттеры для установки значений по умолчанию
 
-    get title() {
-        return this._title;
-    }
+/*get
+title()
+{
+    return this._title;
+}
 
-    set title(value) {
+set
+title(value)
+{
 
-        if (value == undefined) {
-            this._title = 'Товар отсутствует';
-        } else {
-            this._title = value;
-        }
-    }
-
-    get price() {
-        return this._price;
-    }
-
-    set price(value) {
-
-        if (value == undefined) {
-            this._price = 0;
-        } else {
-            this._price = value;
-        }
-    }
-
-    render() {
-        return this.textForRender;
+    if (value == undefined) {
+        this._title = 'Товар отсутствует';
+    } else {
+        this._title = value;
     }
 }
 
+get
+price()
+{
+    return this._price;
+}
+
+set
+price(value)
+{
+
+    if (value == undefined) {
+        this._price = 0;
+    } else {
+        this._price = value;
+    }
+}
+
+render()
+{
+    return this.textForRender;
+}
+}*/
+
 //Потомок ProductItem - частный случай рендеринга 4 блока в строке - перенос на новую стоку
 
-class ProductItem4 extends ProductItem {
+/*class ProductItem4 extends ProductItem {
     constructor(id, img = 'https://placehold.it/150x100', title = 'Товар отсутствует', price = 0, textForRender) {
         super(id, img, title, price, textForRender);
         this.render()
@@ -175,11 +215,11 @@ class ProductItem4 extends ProductItem {
     render() {
         return `${super.render()}<div class="break"></div>`
     }
-}
+}*/
 
 // Корзина
 
-class Cart extends ProductsList {
+/*class Cart extends ProductsList {
     constructor(product) {
         super(product);
         this.productsInCart = {};
@@ -218,9 +258,7 @@ class Cart extends ProductsList {
     }
 
     //Виртуальная очистка корзины
-    deleteFromCart() {
-        this.productsInCart = {};
-    }
+
 
     //Визуальная очистка корзины
 
@@ -231,10 +269,7 @@ class Cart extends ProductsList {
         }
     }
 
-    hideCart() {
-        let g = document.querySelector('.cart');
-        g.style.display = 'none';
-    }
+
 
     showCart() {
         let g = document.querySelector('.cart');
@@ -278,4 +313,4 @@ let list = new ProductsList();
 let cart = new Cart();
 
 let searchBtn = document.querySelector('.search_btn');
-searchBtn.addEventListener('click',search.filterIt);
+searchBtn.addEventListener('click', search.filterIt);*/
