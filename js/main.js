@@ -5,7 +5,6 @@ const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-a
 const app = new Vue({
     el: '#container',
     data: {
-        userSearchText: '',
         productsList: [],
         filtered: [],
         imgProd: 'https://placehold.it/150x100',
@@ -16,13 +15,6 @@ const app = new Vue({
         divContainer: document.querySelector('.products'),
     },
     methods: {
-
-        filterIt () {
-            let regExp = new RegExp(`[${this.userSearchText}]{1,10}`, 'i');
-            this.filtered = this.filtered.filter(el => regExp.test(el.product_name));
-            console.log(regExp);
-            console.log(this.filtered.length);
-        },
 
         getJson(API) {
             return fetch(API)
@@ -40,7 +32,6 @@ const app = new Vue({
                 item.quantity = 1;
                 this.cartItems.push(item);
             }
-
         },
 
         remove(item) {

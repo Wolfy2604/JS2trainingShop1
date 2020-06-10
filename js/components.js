@@ -1,5 +1,56 @@
 'use strict'
 
+Vue.component('login-box', {
+    template: `<div class="login_box">
+                    <a href="#" @click="showLogin" class="login">Войти</a>
+                    <a href="#" @click="showRegister" class="register">Зарегистрироваться</a>
+                    <div class="login_form">
+                    
+</div>
+                    <div class="register_form">
+                    <form action="register">
+                    <label for="register_surname">Фамилия:</label>
+                    <input type="text" id="register_surname">
+                    <label for="register_name">Имя:</label>
+                    <input type="text" id="register_name">
+                    <label for="register_password">Пароль:</label>
+                    <input type="password" id="register_password">
+                    <label for="register_email">E-mail:</label>
+                    <input type="text" id="register_email">
+                    <submit>Принять</submit>
+</form>
+</div>
+               </div>`,
+    methods: {
+        showLogin () {
+
+        },
+        showRegister () {
+
+        }
+    }
+})
+
+Vue.component('search',{
+    data() {
+        userSearchText: '';
+    },
+    props: ['userSearchText'],
+    template: `<div id="search">
+                    <input type="text" class="search_input" placeholder="Поиск товара" v-model="userSearchText">
+                    <button class="search_btn" :filtered="filtered" @click="filtered.filter(userSearchText)"></button>
+                </div>`,
+    /*methods: {
+        filterIt () {
+            let regExp = new RegExp(`[${this.userSearchText}]{1,10}`, 'i');
+            console.log(this.imgProd);
+            this.filtered = this.filtered.filter(el => regExp.test(el.product_name));
+            console.log(regExp);
+            console.log($emit.filtered);
+        },
+    }*/
+})
+
 Vue.component('products', {
     props: ["products","img"],
     template:  `<section class="products">

@@ -2,34 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Интернет-магазин</title>
+    <title>Главная страница</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="container">
         <header>
-            <div class="logo">
-                <p>Магазин "Гаджеты"</p>
-            </div>
-            <nav class="main_menu">
-                <a href="#" class="menu_point"><span href="#">Пункт 1</span></a>
-                <a href="#" class="menu_point"><span href="#">Пункт 2</span></a>
-                <a href="#" class="menu_point"><span href="#">Пункт 3</span></a>
-                <a href="#" class="menu_point"><span href="#">Пункт 4</span></a>
-                <a href="#" class="menu_point"><span href="#">Пункт 5</span></a>
-                <div id="search">
-                    <input type="text" class="search_box" placeholder="Поиск товара" v-model="userSearchText">
-                    <button class="search_btn" @click="filterIt"></button>
+            <div class="first_box">
+                <div class="logo">
+                    <a href="index.html">
+                        <img class="logo_img" src="img/logo.png" alt="Лого">
+                    </a>
                 </div>
+                <login-box></login-box>
+                <search></search>
+            </div>
+            <nav class="main_menu second_box">
+                <a href="#" class="menu_point"><span href="#">Телевизоры</span></a>
+                <a href="#" class="menu_point"><span href="#">Ноутбуки</span></a>
+                <a href="#" class="menu_point"><span href="#">Аудио</span></a>
+                <a href="#" class="menu_point"><span href="#">Комплектующие для ПК</span></a>
+                <a href="#" class="menu_point"><span href="#">Бытовая техника</span></a>
                 <button class="menu_point btn-cart" @click="showCart = !showCart">Корзина</button>
             </nav>
         </header>
         <main>
+            <div class="slider"></div>
             <products :img="imgProd" :products="filtered" @add-product="putToCart"></products>
             <cart :cart-items="cartItems" @remove="remove" :visibility="showCart"></cart>
+            <div class="reviews"></div>
         </main>
+        <footer>
+            <div class="subscribe"></div>
+            <logo></logo>
+            <copyrights></copyrights>
+            <official_text></official_text>
+        </footer>
     </div>
-    <footer></footer>
     <script src="js/vue.min.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
